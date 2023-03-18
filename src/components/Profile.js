@@ -1,35 +1,63 @@
-import React from "react";
-//import { useState, useEffect } from "react";
+//import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+
 //import { useParams } from "react-router-dom";
 
 const Profile = () => {
+  const [open, setOpen] = useState(false);
+
+  let menuRef = useRef();
+
+  useEffect(() => {
+    let handler = (e) => {
+      if (!menuRef.current.contains(e.target)) {
+        setOpen(false);
+        console.log(menuRef.current);
+      }
+    };
+
+    document.addEventListener("mousedown", handler);
+
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  });
   return (
-    <div class="dropdown">
-      <button
-        class="btn btn-secondary dropdown-toggle"
-        type="button"
-        id="dropdownMenuButton"
-        data-toggle="dropdown"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >
-        Profile
-      </button>
+    <div className="menu-container" ref={menuRef}>
       <div
-        class="dropdown-menu dropdown-menu-end"
-        aria-labelledby="dropdownMenuButton"
+        className="menu-trigger"
+        onClick={() => {
+          setOpen(!open);
+          //alert("open");
+        }}
       >
-        <a class="dropdown-item" href="#">
-          Action
-        </a>
-        <a class="dropdown-item" href="#">
-          Another action
-        </a>
-        <a class="dropdown-item" href="#">
-          Something else here
-        </a>
+        <a>Login</a>
+      </div>
+
+      <div className={`dropdown-menu ${open ? "active" : "inactive"}`}>
+        <h3>
+          The Kiet
+          <br />
+          <span>Website Designer</span>
+        </h3>
+        <ul>
+          <DropdownItem text={"My Profile"} />
+          <DropdownItem text={"Edit Profile"} />
+          <DropdownItem text={"Inbox"} />
+          <DropdownItem text={"Settings"} />
+          <DropdownItem text={"Helps"} />
+          <DropdownItem text={"Logout"} />
+        </ul>
       </div>
     </div>
   );
 };
+
+function DropdownItem(props) {
+  return (
+    <li className="dropdownItem">
+      <a> {props.text} </a>
+    </li>
+  );
+}
 export default Profile;

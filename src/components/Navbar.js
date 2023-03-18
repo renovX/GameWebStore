@@ -33,17 +33,6 @@ function Navbar() {
             <li className="nav-item">
               <a href="/">Contact Us</a>
             </li>
-            <li className="nav-item" id="pp">
-              <Profile />
-            </li>
-            {/*<i className="fas fa-search" id="search-icon">
-              S
-            </i>
-            <input
-              className="search-input"
-              type="text"
-              placeholder="Search.."
-  />*/}
           </ul>
         </nav>
       </div>

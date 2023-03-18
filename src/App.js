@@ -7,6 +7,7 @@ import GamesByGenre from "./components/GamesByGenre";
 import { Routes, Route } from "react-router-dom";
 import Landing from "./Landing";
 import Game from "./components/Game";
+import Cart from "./components/Profile/Cart";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="genres/:genre" element={<GamesByGenre />} />
         <Route path="game/:gameId" element={<Game />} />
+        <Route path="profile/cart/:payStatus" element={<Cart />} />
       </Routes>
     </>
   );
