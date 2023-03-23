@@ -1,5 +1,5 @@
 import React from "react";
-import "./Cart.css";
+import "./Profile.css";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Paper from "@mui/material/Paper";
@@ -22,12 +22,14 @@ import {
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { display } from "@mui/system";
-const Cart = () => {
+const Cart = ({ cartitem, cartfn }) => {
   const { payStatus } = useParams();
-  const [gameArray, setinfo] = useState([
+  const [gameArray, setinfo] = useState(
+    /*[
     { img: "img", name: "CyberPunk", price: 100000, id: "123" },
     { img: "img", name: "CyberPunk2", price: 100000, id: "456" },
-  ]);
+  ]*/ cartitem
+  );
   const [totalPrice, setPrice] = useState(0);
   const style = {
     width: "60%",
@@ -110,6 +112,16 @@ const Cart = () => {
               <span className="totalPrice">{totalPrice}</span>
             </ListItem>
           </List>
+          <Button
+            variant="outlined"
+            color="success"
+            sx={{ ml: "45%", mt: 3 }}
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Shop
+          </Button>
           <Button
             variant="contained"
             sx={{ ml: "43%", mt: 3, mb: 2 }}

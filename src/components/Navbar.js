@@ -1,5 +1,5 @@
 import React from "react";
-
+import TemporaryDrawer from "./Drawer";
 import "./Navbar.css";
 import Profile from "./Profile";
 function Navbar() {
@@ -32,6 +32,9 @@ function Navbar() {
             </li>
             <li className="nav-item">
               <a href="/">Contact Us</a>
+            </li>
+            <li>
+              <TemporaryDrawer />
             </li>
           </ul>
         </nav>

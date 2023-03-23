@@ -1,12 +1,22 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 //import "../../images/img1.jpeg";
-const Game = () => {
+const Game = ({ cartitem, cartfn }) => {
   const { gameId } = useParams();
   const [gameData, setGameData] = useState({});
   console.log(gameId);
-
+  const addToCart = (item) => {
+    const cart = cartitem;
+    cart.push(item);
+    cartfn(cart);
+  };
+  let navigate = useNavigate();
+  const routeChange = () => {
+    let path = `/profile/cart/ac`;
+    navigate(path);
+  };
   useEffect(() => {
     //console.log("Okb");
     const fetchGameData = async () => {
@@ -137,7 +147,19 @@ const Game = () => {
               <div className="priceval">
                 <strong>Price:10000</strong>
               </div>
-              <button type="button" className="btn btn-outline-success">
+              <button
+                type="button"
+                className="btn btn-outline-success"
+                onClick={() => {
+                  addToCart({
+                    img: "img",
+                    name: data.name,
+                    id: data._id,
+                    price: 1000,
+                  });
+                  routeChange();
+                }}
+              >
                 Add to Cart
               </button>
             </div>
