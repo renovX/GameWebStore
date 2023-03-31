@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 import genreData from "../assets/genreData.js";
 //import "./genres.css";
 
@@ -20,11 +20,11 @@ function Genres() {
         {genreData.map((genre) => (
           <figure className="hover-img">
             <img src={genre.imgSrc} alt="" height="83%" width="100%" />
-            <a href={`/genres/${genre.name}`} rel="noreferrer">
+            <Link to={`/genres/${genre.name}`} rel="noreferrer">
               <figcaption>
                 <h3>{genre.name}</h3>
               </figcaption>
-            </a>
+            </Link>
           </figure>
         ))}
         <extra>

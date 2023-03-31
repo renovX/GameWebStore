@@ -76,6 +76,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   justify-self: end;
+  height: 100%;
 }
 
 .nav-item a {

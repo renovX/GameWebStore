@@ -2,6 +2,9 @@ import React from "react";
 import TemporaryDrawer from "./Drawer";
 import "./Navbar.css";
 import Profile from "./Profile";
+import { Outlet, useNavigate } from "react-router";
+import { Link } from "react-router-dom";
+
 function Navbar() {
   return (
     <>
@@ -19,7 +22,9 @@ function Navbar() {
           </div>
           <ul className="nav no-search">
             <li className="nav-item">
-              <a href="/">Home</a>
+              <Link to="/" style={{ color: "white" }}>
+                Home
+              </Link>
             </li>
             <li className="nav-item">
               <a href="/">About</a>
@@ -33,12 +38,13 @@ function Navbar() {
             <li className="nav-item">
               <a href="/">Contact Us</a>
             </li>
-            <li>
+            <li className="nav-item">
               <TemporaryDrawer />
             </li>
           </ul>
         </nav>
       </div>
+      <Outlet />
     </>
   );
 }

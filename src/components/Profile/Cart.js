@@ -20,15 +20,50 @@ import {
 //import ListItem from "@mui/material/ListItem";
 //import ListItemText from "@mui/material/ListItemText";
 import { useState, useEffect } from "react";
+import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { display } from "@mui/system";
-const Cart = ({ cartitem, cartfn }) => {
+import { LoginContext } from "../../Context/LoginContext";
+import { DrawerContext } from "../../Context/DrawerContext";
+const Cart = () => {
+  async function fetchData() {
+    await axios.get(
+      `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/profile/add-to-library`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    const res = await axios.get(
+      `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/profile/get-data`,
+      {
+        withCredentials: true,
+      }
+    );
+    if (res) {
+      setProfile({
+        name: res.data.name,
+        phone: res.data.phoneNumber,
+        email: res.data.email,
+        password: "",
+        addr: res.data.address,
+        cart: res.data.cart,
+        library: res.data.libraryGames,
+      });
+      setDrawer(true);
+    } else {
+      console.log("Not Loaded");
+    }
+  }
+
+  const { profileData, setProfile } = useContext(LoginContext);
+  const { drawer, setDrawer } = useContext(DrawerContext);
   const { payStatus } = useParams();
-  const [gameArray, setinfo] = useState(
+  const [cartItems, setCart] = useState(
     /*[
     { img: "img", name: "CyberPunk", price: 100000, id: "123" },
     { img: "img", name: "CyberPunk2", price: 100000, id: "456" },
-  ]*/ cartitem
+  ]*/ profileData.cart
   );
   const [totalPrice, setPrice] = useState(0);
   const style = {
@@ -40,19 +75,46 @@ const Cart = ({ cartitem, cartfn }) => {
   const navigate = useNavigate();
   useEffect(() => {
     var sum = 0;
-    for (let i = 0; i < gameArray.length; i++) sum += gameArray[i].price;
-    if (payStatus == "success") setinfo([]);
+    for (let i = 0; i < cartItems.length; i++) sum += cartItems[i].price;
+    if (payStatus == "success") {
+      fetchData();
+      const p = profileData;
+      p.library = Object.assign(profileData.library, ...profileData.cart);
+
+      setProfile(p);
+      setCart([]);
+    }
     setPrice(sum);
-  });
+  }, []);
   const removeItem = (name) => {
-    setinfo(
-      gameArray.filter(function(obj) {
-        return obj.name !== name;
-      })
-    );
+    const cart = profileData.cart.filter(function(obj) {
+      return obj.name !== name;
+    });
+
+    const p = profileData;
+    setCart(cart);
+    p.cart = cart;
+    console.log("Curr Cart:" + p.cart);
+    setProfile(p);
   };
   //var sum = 0;
+  const handelPayment = async () => {
+    const resp = await axios.post(
+      "http://localhost:8000/stripe/create-checkout-session",
+      {
+        cartItems: profileData.cart,
+      }
+    );
+    if (resp.data.url) {
+      const url = `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/logout`;
 
+      await axios.post(url, {
+        cart: profileData.cart,
+        email: profileData.email,
+      });
+      window.location.href = resp.data.url;
+    } else alert("no url");
+  };
   //setPrice(gameArray[0].price + gameArray[1].price);
   return (
     <Container fixed sx={{ bgcolor: "primary.main" }}>
@@ -64,7 +126,7 @@ const Cart = ({ cartitem, cartfn }) => {
         <></>
       )}
       <h1>CART</h1>
-      {gameArray.length == 0 ? (
+      {cartItems.length == 0 ? (
         <Container sx={{ bgcolor: "primary.main", mr: "20%", height: "300px" }}>
           <h2>Your Cart is Empty</h2>
           <Button
@@ -81,8 +143,8 @@ const Cart = ({ cartitem, cartfn }) => {
       ) : (
         <>
           <List sx={style} component="nav" aria-label="mailbox folders">
-            {gameArray ? (
-              gameArray.map((g) => (
+            {cartItems ? (
+              cartItems.map((g) => (
                 <>
                   <ListItem
                     sx={{ displayPrint: "flex", flexDirection: "row" }}
@@ -126,16 +188,7 @@ const Cart = ({ cartitem, cartfn }) => {
             variant="contained"
             sx={{ ml: "43%", mt: 3, mb: 2 }}
             color="success"
-            onClick={async () => {
-              const resp = await axios.post(
-                "http://localhost:8000/stripe/create-checkout-session",
-                {
-                  cartItems: gameArray,
-                }
-              );
-              if (resp.data.url) window.location.href = resp.data.url;
-              else alert("no url");
-            }}
+            onClick={handelPayment}
           >
             Purchase
           </Button>

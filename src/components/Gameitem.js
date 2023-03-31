@@ -1,9 +1,9 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 const Gameitem = ({ name, imageSrc, rating, released, ratings_count }) => {
   const link = "/game/" + name.replace(/\s/g, "");
   return (
-    <a href={link}>
+    <Link to={link}>
       <div className="my-3">
         <div className="card text-white bg-dark mb-3">
           <div
@@ -39,7 +39,7 @@ const Gameitem = ({ name, imageSrc, rating, released, ratings_count }) => {
           </div>
         </div>
       </div>
-    </a>
+    </Link>
   );
 };
 

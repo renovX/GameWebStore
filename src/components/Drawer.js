@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -16,6 +17,10 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Diversity1Icon from "@mui/icons-material/Diversity1";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LogintIcon from "@mui/icons-material/Login";
+import CreateIcon from "@mui/icons-material/Create";
+import Cookies from "js-cookie";
+import { DrawerContext } from "../Context/DrawerContext";
+import { LoginContext } from "../Context/LoginContext";
 const iconArray = [
   <ManageAccountsIcon />,
   <Diversity1Icon />,
@@ -26,6 +31,8 @@ const iconArray = [
 ];
 
 export default function TemporaryDrawer() {
+  const { drawer, setDrawer } = React.useContext(DrawerContext);
+  const { profileData, setProfile } = React.useContext(LoginContext);
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -34,7 +41,7 @@ export default function TemporaryDrawer() {
   });
   const [loginState, setLogin] = React.useState(false);
   const navigate = useNavigate();
-  const toggleDrawer = (anchor, open) => (event) => {
+  const toggleDrawer = (anchor) => (event) => {
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
@@ -42,9 +49,22 @@ export default function TemporaryDrawer() {
       return;
     }
 
-    setState({ ...state, [anchor]: open });
+    setState({ ...state, [anchor]: !state[anchor] });
   };
-
+  const handleLogin = () => {
+    setState({ ...state, [anchor]: false });
+    setProfile({});
+    navigate("/auth/signin");
+  };
+  const handleLogout = async () => {
+    setDrawer(false);
+    setState({ ...state, [anchor]: false });
+    const url = `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/auth/logout`;
+    Cookies.remove("token");
+    await axios.post(url, { cart: profileData.cart, email: profileData.email });
+    console.log(profileData.cart[0]);
+    navigate("/");
+  };
   const list = (anchor) => (
     <Box
       sx={{
@@ -53,10 +73,10 @@ export default function TemporaryDrawer() {
         mt: "24%",
       }}
       role="presentation"
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
+      /*onClick={toggleDrawer(anchor, true)}*/
+      onKeyDown={toggleDrawer(anchor)}
     >
-      {loginState ? (
+      {drawer ? (
         <List>
           {[
             { text: "Account", nav: "/profile/account" },
@@ -68,7 +88,9 @@ export default function TemporaryDrawer() {
             <ListItem key={text} disablePadding>
               <ListItemButton
                 onClick={() => {
+                  setState({ ...state, [anchor]: false });
                   navigate(nav);
+                  toggleDrawer(anchor);
                 }}
               >
                 <ListItemIcon>{iconArray[index]}</ListItemIcon>
@@ -77,11 +99,7 @@ export default function TemporaryDrawer() {
             </ListItem>
           ))}
           <ListItem key="Logout" disablePadding>
-            <ListItemButton
-              onClick={() => {
-                setLogin(false);
-              }}
-            >
+            <ListItemButton onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon />
               </ListItemIcon>
@@ -93,14 +111,28 @@ export default function TemporaryDrawer() {
         <List>
           <ListItem disablePadding>
             <ListItemButton
-              onClick={() => {
-                setLogin(true);
-              }}
+              onClick={
+                //setLogin(true);
+                handleLogin
+              }
             >
               <ListItemIcon>
                 <LogintIcon />
               </ListItemIcon>
               <ListItemText primary="Login" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                setState({ ...state, [anchor]: false });
+                navigate("/auth/register");
+              }}
+            >
+              <ListItemIcon>
+                <CreateIcon />
+              </ListItemIcon>
+              <ListItemText primary="Register" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -109,17 +141,20 @@ export default function TemporaryDrawer() {
   );
   const anchor = "right";
   return (
-    <div>
-      <React.Fragment key={anchor}>
-        <Button onClick={toggleDrawer(anchor, true)}>Profile</Button>
-        <Drawer
-          anchor={anchor}
-          open={state[anchor]}
-          onClose={toggleDrawer(anchor, false)}
-        >
-          {list(anchor)}
-        </Drawer>
-      </React.Fragment>
-    </div>
+    <React.Fragment key={anchor}>
+      <Button
+        sx={{ color: "white", p: 0, textTransform: "none" }}
+        onClick={toggleDrawer(anchor)}
+      >
+        Profile
+      </Button>
+      <Drawer
+        anchor={anchor}
+        open={state[anchor]}
+        onClose={toggleDrawer(anchor, false)}
+      >
+        {list(anchor)}
+      </Drawer>
+    </React.Fragment>
   );
 }

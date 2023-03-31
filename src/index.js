@@ -1,17 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+import { CookiesProvider } from "react-cookie";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+    <React.StrictMode>
       <BrowserRouter>
-        <App />
+        <CookiesProvider>
+          <App />
+        </CookiesProvider>
       </BrowserRouter>
-  </React.StrictMode>
+    </React.StrictMode>
+  </GoogleOAuthProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

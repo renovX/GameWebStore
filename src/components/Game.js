@@ -2,15 +2,22 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { LoginContext } from "../Context/LoginContext";
+import axios from "axios";
 //import "../../images/img1.jpeg";
 const Game = ({ cartitem, cartfn }) => {
+  const { profileData, setProfile } = useContext(LoginContext);
   const { gameId } = useParams();
   const [gameData, setGameData] = useState({});
-  console.log(gameId);
+
   const addToCart = (item) => {
-    const cart = cartitem;
+    const p = profileData;
+    const cart = profileData.cart;
+
     cart.push(item);
-    cartfn(cart);
+    p.cart = cart;
+    setProfile(p);
   };
   let navigate = useNavigate();
   const routeChange = () => {
@@ -19,15 +26,17 @@ const Game = ({ cartitem, cartfn }) => {
   };
   useEffect(() => {
     //console.log("Okb");
-    const fetchGameData = async () => {
-      const res = await (
-        await fetch(`http://localhost:8000/game/getgame/${gameId}`)
-      ).json();
+    async function fetchGameData() {
+      const res = await axios.get(
+        `http://localhost:8000/game/getgame/${gameId}`
+      );
       //cons
       //console.log(res);
-      const gameData = res;
-      setGameData(gameData);
-    };
+      //const gameData = res.data;
+      console.log(res.data);
+      setGameData(res.data);
+    }
+
     //console.log(gameData);
     fetchGameData();
     /*try {
@@ -36,14 +45,13 @@ const Game = ({ cartitem, cartfn }) => {
       console.log(e);
     }*/
   }, []);
-  const data = gameData;
-  const sysreq = data.systemreq;
-  console.log("Datak " + data.name);
-  console.log("array" + Array.isArray(sysreq));
+  //const data = gameData;
+  //const sysreq = data.systemreq;
+
   return (
     <div className="gamePage">
       <div className="gameHeading">
-        <h2 className="text-center">{data.name}</h2>
+        <h2 className="text-center">{gameData.name}</h2>
       </div>
       <div className="tab1">
         <div className="game_images">
@@ -109,29 +117,29 @@ const Game = ({ cartitem, cartfn }) => {
           <table className="table table-success table-striped-columns">
             <thead>
               <tr>
-                <th colSpan={2}>CyberPunk</th>
+                <th colSpan={2}>{gameData.name}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Developer</td>
-                <td>Ubisoft</td>
+                <td>{gameData.developer}</td>
               </tr>
               <tr>
                 <td>Release Date</td>
-                <td>20th April 2022</td>
+                <td>{gameData.release_date}</td>
               </tr>
               <tr>
                 <td>Publisher</td>
-                <td>Ubisoft</td>
+                <td>{gameData.publisher}</td>
               </tr>
               <tr>
                 <td>Genre</td>
-                <td>Action</td>
+                <td>{gameData.genre}</td>
               </tr>
               <tr>
                 <td>Review</td>
-                <td>Positive</td>
+                <td>{gameData.review}</td>
               </tr>
             </tbody>
           </table>
@@ -145,27 +153,32 @@ const Game = ({ cartitem, cartfn }) => {
 
             <div className="p2">
               <div className="priceval">
-                <strong>Price:10000</strong>
+                <strong>Price:{gameData.price}</strong>
               </div>
-              <button
-                type="button"
-                className="btn btn-outline-success"
-                onClick={() => {
-                  addToCart({
-                    img: "img",
-                    name: data.name,
-                    id: data._id,
-                    price: 1000,
-                  });
-                  routeChange();
-                }}
-              >
-                Add to Cart
-              </button>
+              {profileData.name != "" ? (
+                <button
+                  type="button"
+                  className="btn btn-outline-success"
+                  onClick={() => {
+                    addToCart({
+                      img: "img",
+                      name: gameData.name,
+                      id: gameData._id,
+                      price: +gameData.price,
+                    });
+                    routeChange();
+                  }}
+                >
+                  Add to Cart
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
         </div>
       </div>
+
       <div className="gameDetails">
         <div className="accordion" id="accordionPanelsStayOpenExample">
           <div className="accordion-item">
@@ -187,7 +200,7 @@ const Game = ({ cartitem, cartfn }) => {
               aria-labelledby="panelsStayOpen-headingOne"
             >
               <div className="accordion-body">
-                <strong>{data.description}</strong>
+                <strong>{gameData.description}</strong>
               </div>
             </div>
           </div>
@@ -212,7 +225,11 @@ const Game = ({ cartitem, cartfn }) => {
               >
                 <div className="accordion-body">
                   <ol>
-                    {sysreq ? sysreq.map((s) => <li>{s}</li>) : <li></li>}
+                    {gameData.systemreq ? (
+                      gameData.systemreq.map((s) => <li>{s}</li>)
+                    ) : (
+                      <li></li>
+                    )}
                   </ol>
                 </div>
               </div>
